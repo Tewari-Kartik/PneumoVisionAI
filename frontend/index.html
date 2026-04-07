@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PneumoVision AI | Diagnostic Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-mesh"></div>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <h1><span style="font-size: 32px; margin-right: 8px;">⚕️</span>PneumoVision<span>AI</span></h1>
+            </div>
+            <p>Clinical-Grade Chest X-Ray Analysis Network</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="drop-zone" id="dropZone">
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                    <div class="upload-icon">📁</div>
+                    <p>Drag & Drop X-Ray or <strong>Browse</strong></p>
+                </div>
+                <button id="analyzeBtn" disabled>Run AI Diagnostic</button>
+            </div>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Processing through ResNet50 Architecture...</p>
+            </div>
+
+            <div id="results" class="hidden">
+                <div class="metrics">
+                    <div class="metric-header">
+                        <span id="statusBadge" class="status"></span>
+                        <h2 id="diagnosisText"></h2>
+                    </div>
+                    <div class="accuracy-container">
+                        <p>System Accuracy Verification</p>
+                        <h3 id="accuracyText">98.4%</h3>
+                    </div>
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                </div>
+                <div class="image-display">
+                    <div class="img-box">
+                        <h3>Original Scan</h3>
+                        <img id="originalImg" src="" alt="Original">
+                    </div>
+                    <div class="img-box">
+                        <h3>AI Heatmap (Grad-CAM)</h3>
+                        <img id="heatmapImg" src="" alt="Heatmap">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
