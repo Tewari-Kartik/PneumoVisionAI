@@ -1,43 +1,64 @@
-# 🫁 PneumoVision AI: Deep Learning Chest X-Ray Analyzer
+# 🫁 PneumoVision AI 
+**Clinical-Grade Chest X-Ray Analysis Network**
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![TensorFlow](https://img.shields.io/badge/AI-TensorFlow%20/%20Keras-FF6F00?style=flat&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
-[![Nginx](https://img.shields.io/badge/Frontend-Vanilla%20JS%20%26%20Nginx-269539?style=flat&logo=nginx&logoColor=white)](https://www.nginx.com/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![TensorFlow](https://img.shields.io/badge/AI-TensorFlow%20/%20Keras-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
+[![JavaScript](https://img.shields.io/badge/Frontend-Vanilla_JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Deployment](https://img.shields.io/badge/Deployed_On-Render_%7C_Hugging_Face-informational?style=for-the-badge)]()
 
-**PneumoVision AI** is a full-stack medical imaging application that leverages a **ResNet50 Deep Learning model** to detect Pneumonia from Chest X-ray images with high precision. It features a modern, glassmorphic "Dark Mode" dashboard for a seamless user experience.
+**PneumoVision AI** is a high-performance, full-stack medical imaging application. By leveraging a heavily fine-tuned **ResNet50 Deep Learning architecture**, it acts as a digital assistant for detecting Pneumonia from Chest X-ray scans with remarkable precision. 
 
-
-
----
-
-## 🚀 Features
-* **Instant AI Analysis:** Upload a Chest X-ray and get a prediction in under 2 seconds.
-* **Confidence Scoring:** The model provides a percentage-based confidence level for its diagnosis.
-* **Glassmorphic UI:** A sleek, responsive frontend built with modern CSS and Vanilla JavaScript.
-* **Production-Ready Backend:** Built with FastAPI for high-performance asynchronous processing.
-* **Scalable Architecture:** Fully prepared for cloud deployment.
+Wrapped in a sleek, glassmorphic "Dark Mode" UI, the system bridges the gap between complex artificial intelligence and intuitive user experience.
 
 ---
 
-## 🛠️ Technical Stack
-* **Deep Learning:** TensorFlow, Keras, ResNet50 Architecture.
-* **Backend:** Python 3.10+, FastAPI, Uvicorn.
-* **Image Processing:** OpenCV, Pillow, NumPy.
-* **Frontend:** HTML5, CSS3 (Custom Glassmorphism), Vanilla JavaScript.
+## 🟢 Live Demo
 
+Experience the AI in action! Drop a Chest X-ray into the dashboard and watch the ResNet50 model process it in real-time.
 
+> **🌐 Launch App:** [pneumovision-app.onrender.com](https://pneumovision-app.onrender.com)
+> *(Note: The AI backend is hosted on a free tier and may take a few seconds to wake up upon your first request!)*
+
+---
+
+## ✨ Key Features
+
+* ⚡ **Instant AI Diagnostics:** Upload a scan and receive a prediction in under 2 seconds.
+* 🎯 **Precision Confidence Scoring:** The AI doesn't just guess; it provides a percentage-based confidence metric for its diagnosis.
+* 🔮 **Glassmorphic UI:** A beautifully crafted, responsive dashboard using modern CSS paradigms—no clunky templates.
+* 🚀 **Asynchronous Processing:** Powered by FastAPI, ensuring the backend handles heavy image arrays without bottlenecking.
+* ☁️ **Cloud-Native Architecture:** Fully decoupled frontend and backend, successfully deployed across Render and Hugging Face.
+
+---
+
+## 🛠️ The Tech Stack
+
+**The Brain (Deep Learning)**
+* TensorFlow & Keras
+* ResNet50 Architecture (Global Average Pooling, Dense Sigmoid Output)
+* Image Processing: OpenCV, Pillow, NumPy
+
+**The Engine (Backend API)**
+* Python 3.10+
+* FastAPI & Uvicorn (ASGI)
+* RESTful API & CORS Middleware
+
+**The Face (Frontend UI)**
+* HTML5 & CSS3 (Custom Glassmorphism)
+* Vanilla JavaScript (Fetch API integration)
 
 ---
 
 ## 📂 Project Structure
+
 ```text
 pneumonia-vision/
 ├── backend/
-│   ├── main.py                # FastAPI API endpoints
-│   ├── best_pneumonia_model.h5 # Trained ResNet50 Model (via Git LFS)
-│   └── requirements.txt       # Python dependencies
+│   ├── main.py
+│   ├── best_pneumonia_model.h5
+│   └── requirements.txt
 ├── frontend/
-│   ├── index.html             # Dashboard Structure
-│   ├── style.css              # Glassmorphic Styling
-│   └── script.js              # Frontend Logic & API Fetching
-└── README.md                  # Project Documentation
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+└── README.md
