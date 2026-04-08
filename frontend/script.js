@@ -60,7 +60,7 @@ analyzeBtn.addEventListener('click', async () => {
     progressBar.style.width = '0%';
 
     try {
-        const response = await fetch('https://pneumo-backend.onrender.com/predict', {
+        const response = await fetch('https://soon007-pneumo-backend.hf.space/predict', {
             method: 'POST',
             body: formData
         });
