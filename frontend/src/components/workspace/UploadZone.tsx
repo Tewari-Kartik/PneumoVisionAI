@@ -68,13 +68,18 @@ export default function UploadZone({
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`relative flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-10 transition-all duration-300 cursor-pointer ${
+              className={`relative flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-10 transition-all duration-500 cursor-pointer overflow-hidden group ${
                 isDragOver
-                  ? "border-cyan bg-cyan/5 shadow-[0_0_30px_rgba(0,240,255,0.1)]"
-                  : "border-line hover:border-muted"
+                  ? "border-cyan bg-cyan/[0.03] shadow-[inset_0_0_50px_rgba(0,240,255,0.05)]"
+                  : "border-line hover:border-cyan/50 hover:bg-cyan/[0.01]"
               }`}
               onClick={() => inputRef.current?.click()}
             >
+              {/* Animated scanline on drag over */}
+              {isDragOver && (
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan/10 to-transparent animate-sweep pointer-events-none" />
+              )}
+              
               <input
                 ref={inputRef}
                 type="file"
@@ -83,29 +88,32 @@ export default function UploadZone({
                 onChange={handleInputChange}
               />
               <div
-                className={`rounded-full p-4 transition-colors duration-300 ${
-                  isDragOver ? "bg-cyan/10" : "bg-ink"
+                className={`relative rounded-full p-4 transition-all duration-500 ${
+                  isDragOver ? "bg-cyan/15 scale-110" : "bg-ink group-hover:bg-cyan/5 group-hover:scale-105"
                 }`}
               >
+                {isDragOver && (
+                  <div className="absolute inset-0 rounded-full border border-cyan/40 animate-ping opacity-50" />
+                )}
                 <UploadCloud
-                  className={`h-10 w-10 transition-colors duration-300 ${
-                    isDragOver ? "text-cyan" : "text-muted"
+                  className={`relative z-10 h-10 w-10 transition-colors duration-500 ${
+                    isDragOver ? "text-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]" : "text-muted group-hover:text-cyan/70"
                   }`}
                 />
               </div>
-              <div className="text-center">
-                <p className="text-bright font-display font-medium">
-                  Drag &amp; drop a chest X-ray
+              <div className="text-center relative z-10">
+                <p className={`font-display font-medium transition-colors duration-300 ${isDragOver ? 'text-cyan' : 'text-bright group-hover:text-cyan/90'}`}>
+                  {isDragOver ? "Drop image to analyze" : "Drag & drop a chest X-ray"}
                 </p>
                 <p className="text-sm text-muted mt-1">
                   or{" "}
-                  <span className="text-cyan underline underline-offset-2 cursor-pointer">
+                  <span className="text-cyan underline underline-offset-2 cursor-pointer group-hover:text-cyan/80 transition-colors">
                     browse files
                   </span>
                 </p>
               </div>
-              <p className="text-xs text-muted/60 font-mono">
-                PNG, JPG, DICOM — max 10 MB
+              <p className="text-[10px] text-muted/60 font-mono tracking-widest uppercase relative z-10">
+                PNG, JPG, DICOM — Max 10MB
               </p>
             </div>
             

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { CheckCircle2, AlertTriangle, FileDown } from "lucide-react";
+import { CheckCircle2, AlertTriangle, FileDown, Stethoscope, TrendingUp, Clock, Hash } from "lucide-react";
 import HudPanel from "@/components/ui/HudPanel";
 import GlowButton from "@/components/ui/GlowButton";
 import MetricBar from "@/components/ui/MetricBar";
@@ -30,43 +30,65 @@ export default function DiagnosticReport({
       <HudPanel title="Diagnostic Report">
         {!result ? (
           <div className="flex flex-col items-center justify-center py-10 gap-5 text-center">
-            <div className="waveform-rule" />
-            <p className="text-sm text-muted font-display leading-relaxed max-w-xs">
-              Upload a radiograph and run the diagnostic to generate a report.
-            </p>
-            <div className="waveform-rule" />
+            <motion.div
+              animate={{ scale: [1, 1.05, 1], opacity: [0.4, 0.7, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="w-16 h-16 rounded-full border-2 border-dashed border-cyan/20 flex items-center justify-center"
+            >
+              <Stethoscope className="w-7 h-7 text-cyan/30" />
+            </motion.div>
+            <div>
+              <p className="text-sm text-muted font-display leading-relaxed max-w-xs">
+                Upload a radiograph and run the diagnostic to generate a report.
+              </p>
+              <div className="waveform-rule mt-4" />
+            </div>
           </div>
         ) : (
           <div className="space-y-5">
+            {/* Verdict Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className={`flex items-center gap-3 p-4 rounded-xl border ${
+              className={`relative overflow-hidden flex items-center gap-3 p-4 rounded-xl border ${
                 isPneumonia
                   ? "bg-signal-red/10 border-signal-red/30"
                   : "bg-signal-green/10 border-signal-green/30"
               }`}
             >
-              {isPneumonia ? (
-                <AlertTriangle className="h-6 w-6 text-signal-red shrink-0" />
-              ) : (
-                <CheckCircle2 className="h-6 w-6 text-signal-green shrink-0" />
-              )}
-              <div>
-                <p
-                  className={`font-display font-bold text-lg ${
-                    isPneumonia ? "text-signal-red" : "text-signal-green"
-                  }`}
-                >
-                  {result.diagnosis}
-                </p>
-                <p className="text-xs text-muted mt-0.5">
-                  AI screening verdict
-                </p>
+              {/* Animated pulse background */}
+              <motion.div
+                className={`absolute inset-0 ${isPneumonia ? 'bg-signal-red/5' : 'bg-signal-green/5'}`}
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <div className="relative z-10 flex items-center gap-3">
+                {isPneumonia ? (
+                  <div className="w-10 h-10 rounded-full bg-signal-red/20 flex items-center justify-center">
+                    <AlertTriangle className="h-5 w-5 text-signal-red" />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-signal-green/20 flex items-center justify-center">
+                    <CheckCircle2 className="h-5 w-5 text-signal-green" />
+                  </div>
+                )}
+                <div>
+                  <p
+                    className={`font-display font-bold text-lg ${
+                      isPneumonia ? "text-signal-red" : "text-signal-green"
+                    }`}
+                  >
+                    {result.diagnosis}
+                  </p>
+                  <p className="text-xs text-muted mt-0.5">
+                    AI screening verdict • {Math.round(result.confidence * 100)}% confident
+                  </p>
+                </div>
               </div>
             </motion.div>
 
+            {/* Metric Bars */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -90,6 +112,7 @@ export default function DiagnosticReport({
               />
             </motion.div>
 
+            {/* Metadata Grid */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -97,30 +120,38 @@ export default function DiagnosticReport({
               className="grid grid-cols-2 gap-3"
             >
               {[
-                { label: "Model", value: result.model_version || "ResNet50-FT v1" },
-                { label: "Inference", value: `${result.inference_ms}ms` },
-                { label: "Case ID", value: caseRecord?.id || "—" },
+                { icon: Stethoscope, label: "Model", value: result.model_version || "ResNet50-FT v1" },
+                { icon: Clock, label: "Inference", value: `${result.inference_ms}ms` },
+                { icon: Hash, label: "Case ID", value: caseRecord?.id || "—" },
                 {
+                  icon: TrendingUp,
                   label: "Date",
                   value: caseRecord
                     ? new Date(caseRecord.date).toLocaleDateString()
                     : "—",
                 },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="bg-ink/60 border border-line/40 rounded-lg px-3 py-2.5"
-                >
-                  <p className="text-[10px] text-muted uppercase tracking-wider font-mono">
-                    {item.label}
-                  </p>
-                  <p className="text-sm text-secondary font-mono mt-0.5 truncate">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.label}
+                    className="glass-panel rounded-lg px-3 py-2.5 group hover:border-cyan/20 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Icon size={10} className="text-cyan/50" />
+                      <p className="text-[10px] text-muted uppercase tracking-wider font-mono">
+                        {item.label}
+                      </p>
+                    </div>
+                    <p className="text-sm text-secondary font-mono truncate">
+                      {item.value}
+                    </p>
+                  </div>
+                );
+              })}
             </motion.div>
 
+            {/* Export Button */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -136,6 +167,7 @@ export default function DiagnosticReport({
               </GlowButton>
             </motion.div>
 
+            {/* Disclaimer */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

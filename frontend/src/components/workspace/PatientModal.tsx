@@ -20,9 +20,9 @@ interface PatientModalProps {
 }
 
 const inputClass =
-  "w-full bg-ink border border-line rounded-lg px-3 py-2 text-sm text-bright placeholder:text-muted/50 focus-ring transition-colors duration-200 hover:border-muted/50 focus:border-cyan/40";
+  "w-full bg-ink/80 border border-line rounded-lg px-3 py-2.5 text-sm text-bright placeholder:text-muted/50 focus-ring transition-all duration-300 hover:border-cyan/30 focus:border-cyan/50 focus:shadow-[0_0_20px_rgba(0,240,255,0.1)] focus:bg-ink outline-none";
 
-const labelClass = "block text-xs text-muted font-mono uppercase tracking-wider mb-1.5";
+const labelClass = "block text-[10px] text-muted font-mono uppercase tracking-widest mb-1.5";
 
 export default function PatientModal({ open, onClose, onConfirm }: PatientModalProps) {
   const [form, setForm] = useState<PatientInfo>({

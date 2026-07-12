@@ -12,7 +12,7 @@ import type { PatientInfo } from "@/components/workspace/PatientModal";
 import { runDiagnostic, ApiError, type DiagnosticResult } from "@/lib/api";
 import { saveCase, makeCaseId, type CaseRecord } from "@/lib/storage";
 import { exportCasePdf } from "@/lib/pdf-export";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Activity, Clock, Cpu, Shield } from "lucide-react";
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -131,22 +131,53 @@ export default function WorkspacePage() {
     : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-void">
+    <div className="min-h-screen flex flex-col bg-void relative">
+      {/* Background effects */}
+      <div className="fixed inset-0 grid-bg opacity-20 pointer-events-none" />
+      <div className="fixed top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-cyan/[0.03] blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-1/4 left-0 w-[300px] h-[300px] rounded-full bg-teal/[0.03] blur-[100px] pointer-events-none" />
+
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 pt-24 pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 pt-24 pb-12 relative z-10">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-8"
+          className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4"
         >
-          <p className="text-xs font-mono text-cyan uppercase tracking-[0.25em] mb-2">
-            Live Diagnostic
-          </p>
-          <h1 className="text-3xl font-display font-bold text-bright">
-            Workspace
-          </h1>
+          <div>
+            <p className="text-xs font-mono text-cyan uppercase tracking-[0.25em] mb-2">
+              Live Diagnostic
+            </p>
+            <h1 className="text-3xl font-display font-bold text-bright">
+              Workspace
+            </h1>
+          </div>
+
+          {/* Status bar */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex items-center gap-4 glass-panel px-4 py-2.5 rounded-xl"
+          >
+            <div className="flex items-center gap-1.5">
+              <Activity size={12} className="text-signal-green" />
+              <span className="text-[10px] font-mono text-muted">MODEL READY</span>
+            </div>
+            <div className="w-px h-3 bg-line" />
+            <div className="flex items-center gap-1.5">
+              <Cpu size={12} className="text-cyan" />
+              <span className="text-[10px] font-mono text-muted">RESNET50 v2.1</span>
+            </div>
+            <div className="w-px h-3 bg-line hidden sm:block" />
+            <div className="items-center gap-1.5 hidden sm:flex">
+              <Shield size={12} className="text-teal" />
+              <span className="text-[10px] font-mono text-muted">LOCAL PROCESSING</span>
+            </div>
+          </motion.div>
         </motion.div>
 
         {error && (
@@ -172,6 +203,29 @@ export default function WorkspacePage() {
               isRunning={isRunning}
               onSampleSelect={handleSampleClick}
             />
+
+            {/* Quick info cards below upload */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="grid grid-cols-3 gap-3 mt-8"
+            >
+              {[
+                { icon: Cpu, label: 'ResNet50', desc: 'Deep learning backbone', color: 'text-cyan' },
+                { icon: Clock, label: '<10 seconds', desc: 'Average inference', color: 'text-teal' },
+                { icon: Shield, label: 'Private', desc: 'Client-side only', color: 'text-neon-blue' },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="glass-panel rounded-xl p-4 text-center group hover:border-cyan/20 transition-all duration-500">
+                    <Icon size={18} className={`${item.color} mx-auto mb-2 group-hover:scale-110 transition-transform`} />
+                    <p className="text-xs font-display font-semibold text-bright">{item.label}</p>
+                    <p className="text-[10px] font-mono text-muted mt-0.5">{item.desc}</p>
+                  </div>
+                );
+              })}
+            </motion.div>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
