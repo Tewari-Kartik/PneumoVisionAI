@@ -94,16 +94,17 @@ export default function FeaturesSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan/[0.02] to-transparent pointer-events-none" />
 
       {/* Floating particles */}
-      {[...Array(5)].map((_, i) => (
+      {[
+        { top: '25%', left: '15%', delay: '0s', dur: '4.5s' },
+        { top: '55%', left: '82%', delay: '0.8s', dur: '5s' },
+        { top: '38%', left: '50%', delay: '1.6s', dur: '4s' },
+        { top: '72%', left: '30%', delay: '2.4s', dur: '5.5s' },
+        { top: '45%', left: '75%', delay: '3.2s', dur: '4.8s' },
+      ].map((p, i) => (
         <div
           key={i}
           className="floating-particle"
-          style={{
-            top: `${20 + Math.random() * 60}%`,
-            left: `${10 + Math.random() * 80}%`,
-            animationDelay: `${i * 0.8}s`,
-            animationDuration: `${4 + Math.random() * 2}s`,
-          }}
+          style={{ top: p.top, left: p.left, animationDelay: p.delay, animationDuration: p.dur }}
         />
       ))}
 

@@ -45,16 +45,22 @@ export default function CTASection() {
       <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full bg-teal/[0.03] blur-[80px] pointer-events-none" />
 
       {/* Floating particles */}
-      {[...Array(10)].map((_, i) => (
+      {[
+        { top: '12%', left: '8%', delay: '0s', dur: '4s' },
+        { top: '30%', left: '90%', delay: '0.4s', dur: '5s' },
+        { top: '55%', left: '25%', delay: '0.8s', dur: '3.5s' },
+        { top: '20%', left: '65%', delay: '1.2s', dur: '4.5s' },
+        { top: '75%', left: '45%', delay: '1.6s', dur: '5.5s' },
+        { top: '40%', left: '78%', delay: '2s', dur: '3.8s' },
+        { top: '85%', left: '15%', delay: '2.4s', dur: '4.2s' },
+        { top: '60%', left: '55%', delay: '2.8s', dur: '5.2s' },
+        { top: '15%', left: '40%', delay: '3.2s', dur: '4.8s' },
+        { top: '70%', left: '85%', delay: '3.6s', dur: '3.2s' },
+      ].map((p, i) => (
         <div
           key={i}
           className="floating-particle"
-          style={{
-            top: `${10 + Math.random() * 80}%`,
-            left: `${5 + Math.random() * 90}%`,
-            animationDelay: `${i * 0.4}s`,
-            animationDuration: `${3 + Math.random() * 3}s`,
-          }}
+          style={{ top: p.top, left: p.left, animationDelay: p.delay, animationDuration: p.dur }}
         />
       ))}
 

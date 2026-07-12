@@ -41,17 +41,21 @@ export default function HeroSection() {
       <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-teal/5 blur-[100px] pointer-events-none animate-pulse-glow" />
       <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-neon-blue/5 blur-[80px] pointer-events-none" />
 
-      {/* Floating particles */}
-      {[...Array(8)].map((_, i) => (
+      {/* Floating particles (deterministic positions to avoid hydration mismatch) */}
+      {[
+        { top: '18%', left: '12%', delay: '0s', dur: '4s' },
+        { top: '35%', left: '85%', delay: '0.5s', dur: '5s' },
+        { top: '62%', left: '45%', delay: '1s', dur: '3.5s' },
+        { top: '25%', left: '70%', delay: '1.5s', dur: '4.5s' },
+        { top: '78%', left: '20%', delay: '2s', dur: '5.5s' },
+        { top: '50%', left: '92%', delay: '2.5s', dur: '3s' },
+        { top: '42%', left: '8%', delay: '3s', dur: '4.2s' },
+        { top: '70%', left: '60%', delay: '3.5s', dur: '5.2s' },
+      ].map((p, i) => (
         <div
           key={i}
           className="floating-particle"
-          style={{
-            top: `${15 + Math.random() * 70}%`,
-            left: `${5 + Math.random() * 90}%`,
-            animationDelay: `${i * 0.5}s`,
-            animationDuration: `${3 + Math.random() * 3}s`,
-          }}
+          style={{ top: p.top, left: p.left, animationDelay: p.delay, animationDuration: p.dur }}
         />
       ))}
 
