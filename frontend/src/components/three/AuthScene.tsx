@@ -59,8 +59,8 @@ function DNAHelix() {
     <group ref={groupRef}>
       <points>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={particlesCount} array={positions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={particlesCount} array={colors} itemSize={3} />
+          <bufferAttribute attach="attributes-position" count={particlesCount} array={positions} itemSize={3} args={[positions, 3]} />
+          <bufferAttribute attach="attributes-color" count={particlesCount} array={colors} itemSize={3} args={[colors, 3]} />
         </bufferGeometry>
         <pointsMaterial size={0.08} vertexColors transparent opacity={0.9} sizeAttenuation />
       </points>
@@ -72,6 +72,7 @@ function DNAHelix() {
               count={2}
               array={new Float32Array([...pair[0].toArray(), ...pair[1].toArray()])}
               itemSize={3}
+              args={[new Float32Array([...pair[0].toArray(), ...pair[1].toArray()]), 3]}
             />
           </bufferGeometry>
           <lineBasicMaterial color="#00F0FF" transparent opacity={0.15} />
@@ -105,7 +106,7 @@ function FloatingOrbs() {
   return (
     <points ref={ref}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial size={0.03} color="#00F0FF" transparent opacity={0.4} sizeAttenuation />
     </points>
