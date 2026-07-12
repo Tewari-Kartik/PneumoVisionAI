@@ -1,0 +1,16 @@
+# Python Virtual Environments
+backend/venv/
+venv/
+env/
+
+# Python Cache (Temporary files Python creates)
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment Variables (Keep secrets safe!)
+.env
+
+# OS generated files (Mac/Windows junk files)
+.DS_Store
+Thumbs.db
