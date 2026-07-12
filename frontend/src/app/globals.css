@@ -37,6 +37,10 @@
   --animate-sweep: sweep 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   --animate-float: float 6s ease-in-out infinite;
   --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-rotate-slow: rotate-slow 20s linear infinite;
+  --animate-gradient-shift: gradient-shift 4s ease-in-out infinite;
+  --animate-border-glow: border-glow-pulse 2.5s ease-in-out infinite;
+  --animate-orbit: orbit 12s linear infinite;
 
   @keyframes pulse-glow {
     0%, 100% { opacity: 1; }
@@ -61,6 +65,33 @@
   @keyframes fade-in-up {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes rotate-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes border-glow-pulse {
+    0%, 100% { border-color: rgba(0, 240, 255, 0.15); box-shadow: 0 0 15px rgba(0, 240, 255, 0.05); }
+    50% { border-color: rgba(0, 240, 255, 0.35); box-shadow: 0 0 30px rgba(0, 240, 255, 0.12); }
+  }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+  }
+
+  @keyframes particle-float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+    25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+    50% { transform: translateY(-8px) translateX(-5px); opacity: 0.5; }
+    75% { transform: translateY(-25px) translateX(8px); opacity: 0.7; }
   }
 }
 
@@ -196,6 +227,68 @@ body {
   text-shadow: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.2);
 }
 
+/* ── Glassmorphism Panel ── */
+.glass-panel {
+  background: rgba(15, 29, 50, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.08);
+}
+
+.glass-panel-strong {
+  background: rgba(15, 29, 50, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 240, 255, 0.12);
+}
+
+/* ── Neon Text ── */
+.neon-text {
+  color: #00F0FF;
+  text-shadow:
+    0 0 7px rgba(0, 240, 255, 0.6),
+    0 0 20px rgba(0, 240, 255, 0.4),
+    0 0 42px rgba(0, 240, 255, 0.2);
+}
+
+/* ── Animated Gradient Border ── */
+.gradient-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 240, 255, 0.3),
+    rgba(23, 195, 178, 0.1),
+    rgba(63, 140, 255, 0.3),
+    rgba(0, 240, 255, 0.1)
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 4s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Floating Particle ── */
+.floating-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.5);
+  animation: particle-float 4s ease-in-out infinite;
+}
+
 /* ── Mono Numbers ── */
 .mono-num {
   font-family: var(--font-mono);
@@ -223,12 +316,28 @@ body {
   opacity: 0.5;
 }
 
+/* ── 3D Card Tilt ── */
+.tilt-card {
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+.tilt-card:hover {
+  transform: perspective(800px) rotateY(3deg) rotateX(2deg) scale(1.02);
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   .scanline-sweep,
   .animate-sweep,
   .animate-pulse-glow,
-  .animate-float {
+  .animate-float,
+  .animate-rotate-slow,
+  .animate-orbit,
+  .floating-particle {
     animation: none !important;
+  }
+  .tilt-card:hover {
+    transform: none;
   }
 }

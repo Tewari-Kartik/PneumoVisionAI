@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { motion } from 'motion/react';
 import GlowButton from '@/components/ui/GlowButton';
+import FloatingStat from '@/components/ui/FloatingStats';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), {
   ssr: false,
@@ -35,7 +36,24 @@ export default function HeroSection() {
     <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
       <div className="absolute inset-0 grid-bg opacity-40" />
 
+      {/* Multiple radial glows for depth */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-cyan/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-teal/5 blur-[100px] pointer-events-none animate-pulse-glow" />
+      <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-neon-blue/5 blur-[80px] pointer-events-none" />
+
+      {/* Floating particles */}
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="floating-particle"
+          style={{
+            top: `${15 + Math.random() * 70}%`,
+            left: `${5 + Math.random() * 90}%`,
+            animationDelay: `${i * 0.5}s`,
+            animationDuration: `${3 + Math.random() * 3}s`,
+          }}
+        />
+      ))}
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
@@ -58,7 +76,7 @@ export default function HeroSection() {
             >
               Chest X-Ray Screening,
               <br />
-              <span className="bg-gradient-to-r from-cyan via-teal to-neon-blue bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan via-teal to-neon-blue bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
                 Powered by Deep Learning
               </span>
             </motion.h1>
@@ -109,7 +127,7 @@ export default function HeroSection() {
           >
             <div className="absolute inset-0 rounded-2xl border border-cyan/10 bg-gradient-to-br from-cyan/5 via-transparent to-teal/5 backdrop-blur-sm" />
 
-            <div className="absolute -inset-px rounded-2xl overflow-hidden pointer-events-none">
+            <div className="absolute -inset-px rounded-2xl overflow-hidden pointer-events-none gradient-border">
               <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-cyan/40 to-transparent" />
               <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-teal/30 to-transparent" />
             </div>
@@ -119,7 +137,22 @@ export default function HeroSection() {
               <span className="text-[10px] font-mono text-cyan/50 tracking-wider">HOLOGRAPHIC RENDER</span>
             </div>
 
+            {/* Orbiting dot */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20">
+              <div className="animate-orbit">
+                <div className="w-2 h-2 rounded-full bg-cyan/60 shadow-[0_0_8px_rgba(0,240,255,0.6)]" />
+              </div>
+            </div>
+
             <HeroScene />
+
+            {/* Floating stat badges */}
+            <div className="absolute top-6 right-4 z-20 hidden lg:block">
+              <FloatingStat label="Accuracy" value="97.3%" delay={0.8} />
+            </div>
+            <div className="absolute bottom-8 left-4 z-20 hidden lg:block">
+              <FloatingStat label="Inference" value="<10s" delay={1.2} />
+            </div>
           </motion.div>
         </div>
       </div>

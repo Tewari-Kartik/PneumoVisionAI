@@ -2,12 +2,13 @@
 
 import { motion } from 'motion/react';
 import GlowButton from '@/components/ui/GlowButton';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 function WaveformRule() {
   return (
     <div className="flex items-center justify-center gap-0.5 mb-8">
-      {Array.from({ length: 40 }).map((_, i) => {
-        const height = Math.sin((i / 40) * Math.PI) * 20 + 4;
+      {Array.from({ length: 60 }).map((_, i) => {
+        const height = Math.sin((i / 60) * Math.PI) * 24 + 4;
         return (
           <motion.div
             key={i}
@@ -17,7 +18,7 @@ function WaveformRule() {
             viewport={{ once: true }}
             transition={{
               duration: 0.5,
-              delay: i * 0.02,
+              delay: i * 0.015,
               ease: 'easeOut',
             }}
           />
@@ -27,17 +28,40 @@ function WaveformRule() {
   );
 }
 
+const trustStats = [
+  { value: 97.3, suffix: '%', label: 'Accuracy', decimals: 1 },
+  { value: 50, suffix: 'K+', label: 'Scans Processed', decimals: 0 },
+  { value: 10, suffix: 's', prefix: '<', label: 'Avg. Inference', decimals: 0 },
+  { value: 99.9, suffix: '%', label: 'Uptime', decimals: 1 },
+];
+
 export default function CTASection() {
   return (
     <section className="relative py-24 lg:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-void via-abyss to-void" />
 
+      {/* Multiple ambient glows */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-cyan/[0.04] blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full bg-teal/[0.03] blur-[80px] pointer-events-none" />
+
+      {/* Floating particles */}
+      {[...Array(10)].map((_, i) => (
+        <div
+          key={i}
+          className="floating-particle"
+          style={{
+            top: `${10 + Math.random() * 80}%`,
+            left: `${5 + Math.random() * 90}%`,
+            animationDelay: `${i * 0.4}s`,
+            animationDuration: `${3 + Math.random() * 3}s`,
+          }}
+        />
+      ))}
 
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-line to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-line to-transparent" />
 
-      <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-8 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -59,8 +83,30 @@ export default function CTASection() {
             Open Workspace →
           </GlowButton>
 
+          {/* Trust Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-6"
+          >
+            {trustStats.map((stat) => (
+              <div key={stat.label} className="glass-panel rounded-xl px-4 py-5">
+                <AnimatedCounter
+                  target={stat.value}
+                  suffix={stat.suffix}
+                  prefix={stat.prefix}
+                  decimals={stat.decimals}
+                  className="text-2xl font-display font-bold text-cyan text-glow-cyan"
+                />
+                <p className="text-[10px] font-mono text-muted uppercase tracking-widest mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </motion.div>
+
           <div className="mt-10 flex items-center justify-center gap-6 text-xs font-mono text-muted">
-            <span>No account required</span>
+            <span>Free to use</span>
             <div className="w-1 h-1 rounded-full bg-cyan/40" />
             <span>HIPAA-aware pipeline</span>
             <div className="w-1 h-1 rounded-full bg-cyan/40" />

@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { Activity, Menu, X } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Activity, Menu, X, LogOut, User } from "lucide-react";
 import { checkHealth } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import StatusIndicator from "@/components/ui/StatusIndicator";
 
 const navLinks = [
@@ -20,6 +21,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [serverStatus, setServerStatus] = useState<"online" | "offline" | "checking">("checking");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     checkHealth().then((h) => setServerStatus(h.status === "ok" ? "online" : "offline"));
@@ -34,6 +38,17 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   return (
     <motion.header
@@ -84,11 +99,65 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Status + Mobile Toggle */}
-        <div className="flex items-center gap-4">
+        {/* Right Side: Status + Auth + Mobile Toggle */}
+        <div className="flex items-center gap-3">
           <div className="hidden sm:block">
             <StatusIndicator status={serverStatus} />
           </div>
+
+          {/* Auth Button / Avatar */}
+          {isAuthenticated && user ? (
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan to-teal flex items-center justify-center text-void font-display font-bold text-sm hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-shadow"
+              >
+                {user.avatarInitial}
+              </button>
+
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-11 w-56 rounded-xl bg-ink border border-line/70 shadow-2xl overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b border-line/50">
+                      <p className="text-sm font-medium text-bright truncate">{user.name}</p>
+                      <p className="text-xs text-muted truncate">{user.email}</p>
+                    </div>
+                    <div className="p-1.5">
+                      <Link
+                        href="/workspace"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-bright hover:bg-white/[0.04] transition-all"
+                      >
+                        <User size={14} />
+                        Workspace
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setProfileOpen(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-signal-red/80 hover:text-signal-red hover:bg-signal-red/5 transition-all"
+                      >
+                        <LogOut size={14} />
+                        Sign Out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <Link
+              href="/auth"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-cyan/10 border border-cyan/30 text-cyan text-xs font-mono tracking-wider hover:bg-cyan/20 hover:border-cyan/50 transition-all"
+            >
+              Sign In
+            </Link>
+          )}
+
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden text-muted hover:text-bright p-1 focus-ring rounded"
@@ -119,6 +188,14 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {!isAuthenticated && (
+            <Link
+              href="/auth"
+              className="block px-4 py-2.5 rounded-lg text-sm font-medium text-cyan bg-cyan/10"
+            >
+              Sign In / Sign Up
+            </Link>
+          )}
           <div className="pt-2 px-4">
             <StatusIndicator status={serverStatus} />
           </div>

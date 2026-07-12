@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
+import { AuthProvider } from "@/lib/auth-context";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -38,7 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
     >
       <body className="bg-void text-bright font-body antialiased">
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <AuthProvider>
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        </AuthProvider>
       </body>
     </html>
   );
