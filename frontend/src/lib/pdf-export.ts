@@ -4,81 +4,123 @@ import type { CaseRecord } from "./storage";
 export function exportCasePdf(c: CaseRecord): void {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-
-  doc.setFillColor(5, 10, 20);
-  doc.rect(0, 0, pageWidth, 297, "F");
-
-  doc.setTextColor(231, 236, 245);
-  doc.setFontSize(22);
-  doc.text("PneumoVision AI", 20, 25);
-
+  
+  // Header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.setTextColor(20, 30, 50);
+  doc.text("PneumoVision Clinical AI", 20, 25);
+  
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setTextColor(90, 112, 153);
-  doc.text("AI-Assisted Chest X-Ray Screening Report", 20, 33);
-
-  doc.setDrawColor(30, 48, 84);
+  doc.setTextColor(100, 110, 120);
+  doc.text("Automated Chest Radiograph Screening Report", 20, 32);
+  
+  doc.setDrawColor(200, 200, 200);
   doc.line(20, 38, pageWidth - 20, 38);
-
-  doc.setFontSize(11);
-  doc.setTextColor(200, 214, 232);
-  let y = 50;
-
-  const addRow = (label: string, value: string) => {
-    doc.setTextColor(90, 112, 153);
-    doc.text(label, 20, y);
-    doc.setTextColor(231, 236, 245);
-    doc.text(value, 80, y);
-    y += 8;
-  };
-
-  addRow("Case ID:", c.id);
-  addRow("Date:", new Date(c.date).toLocaleString());
-  addRow("Patient:", c.patientName || "Not provided");
-  addRow("Patient ID:", c.patientId || "—");
-  addRow("Age:", c.age || "—");
-  addRow("Sex:", c.sex || "—");
-
-  y += 5;
-  doc.setDrawColor(30, 48, 84);
-  doc.line(20, y, pageWidth - 20, y);
-  y += 10;
-
-  const isPneumonia = c.diagnosis.toLowerCase().includes("pneumonia");
-  doc.setFontSize(16);
-  doc.setTextColor(isPneumonia ? 255 : 0, isPneumonia ? 77 : 230, isPneumonia ? 106 : 138);
-  doc.text(c.diagnosis, 20, y);
-  y += 10;
-
+  
+  // Metadata Section
+  let y = 48;
   doc.setFontSize(10);
-  doc.setTextColor(200, 214, 232);
-  addRow("Confidence:", `${(c.confidence * 100).toFixed(1)}%`);
-  addRow("P(Pneumonia):", `${(c.probabilityPneumonia * 100).toFixed(1)}%`);
-  addRow("P(Normal):", `${(c.probabilityNormal * 100).toFixed(1)}%`);
-  addRow("Model:", c.modelVersion || "ResNet50-FT v1");
-
-  y += 5;
-
+  
+  const drawField = (label: string, value: string, xPos: number, yPos: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(100, 110, 120);
+    doc.text(label, xPos, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(30, 40, 50);
+    doc.text(value, xPos + 25, yPos);
+  };
+  
+  // Left Column
+  drawField("Case ID:", c.id, 20, y);
+  drawField("Patient:", c.patientName || "Not provided", 20, y + 8);
+  drawField("Patient ID:", c.patientId || "—", 20, y + 16);
+  
+  // Right Column
+  drawField("Date:", new Date(c.date).toLocaleString(), 110, y);
+  drawField("Age:", c.age || "—", 110, y + 8);
+  drawField("Sex:", c.sex || "—", 110, y + 16);
+  
+  y += 26;
+  doc.setDrawColor(230, 230, 230);
+  doc.line(20, y, pageWidth - 20, y);
+  y += 12;
+  
+  // Diagnosis Highlight Box
+  const isPneumonia = c.diagnosis.toLowerCase().includes("pneumonia");
+  doc.setFillColor(isPneumonia ? 254 : 240, isPneumonia ? 242 : 253, isPneumonia ? 242 : 244);
+  doc.setDrawColor(isPneumonia ? 220 : 180, isPneumonia ? 180 : 220, isPneumonia ? 180 : 220);
+  doc.roundedRect(20, y, pageWidth - 40, 20, 2, 2, "FD");
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(isPneumonia ? 180 : 40, isPneumonia ? 40 : 120, isPneumonia ? 40 : 60);
+  doc.text(`AI DIAGNOSIS: ${c.diagnosis.toUpperCase()}`, 25, y + 13);
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(40, 50, 60);
+  doc.text(`Confidence: ${(c.confidence * 100).toFixed(1)}%`, pageWidth - 55, y + 13);
+  
+  y += 30;
+  
+  // AI Metrics
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("AI Inference Metrics", 20, y);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(`Model Architecture: ${c.modelVersion || "ResNet50-FT v1.0"}`, 20, y + 7);
+  doc.text(`P(Pneumonia): ${(c.probabilityPneumonia * 100).toFixed(2)}%`, 20, y + 13);
+  doc.text(`P(Normal): ${(c.probabilityNormal * 100).toFixed(2)}%`, 20, y + 19);
+  
+  // Methodology Explanation
+  y += 30;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("Methodology & Explainability", 20, y);
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(80, 90, 100);
+  const methodologyText = "This prediction was generated using a fine-tuned ResNet50 deep convolutional neural network. To provide clinical explainability, a Gradient-weighted Class Activation Mapping (Grad-CAM) algorithm was mathematically applied to the final convolutional layer. The resulting heatmap (shown below) highlights the specific regions of the radiograph that most heavily influenced the AI's diagnostic decision, allowing clinicians to verify the biological relevance of the prediction.";
+  
+  const splitText = doc.splitTextToSize(methodologyText, pageWidth - 40);
+  doc.text(splitText, 20, y + 7);
+  
+  y += 12 + (splitText.length * 4);
+  
+  // Images
   try {
     if (c.originalImage) {
-      doc.addImage(c.originalImage, "PNG", 20, y, 75, 75);
+      doc.addImage(c.originalImage, "PNG", 20, y, 80, 80);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 110, 120);
+      doc.text("Original Radiograph", 20, y + 85);
     }
     if (c.heatmapImage) {
-      doc.addImage(c.heatmapImage, "PNG", 105, y, 75, 75);
+      doc.addImage(c.heatmapImage, "PNG", 110, y, 80, 80);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 110, 120);
+      doc.text("Grad-CAM Activation Map", 110, y + 85);
     }
   } catch {
     // Skip images if they fail to render
   }
-
-  y += 85;
+  
+  // Footer
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.setTextColor(90, 112, 153);
+  doc.setTextColor(150, 150, 150);
   doc.text(
-    "DISCLAIMER: This report is generated by an AI screening tool and is not a certified medical diagnosis.",
+    "DISCLAIMER: This report is generated by an experimental AI screening tool and is NOT a certified medical diagnosis.",
     20,
-    y,
-    { maxWidth: pageWidth - 40 }
+    280
   );
-  doc.text("All findings must be confirmed by a licensed clinician.", 20, y + 6);
-
+  doc.text("All findings must be independently confirmed by a licensed radiologist or clinician.", 20, 284);
+  
   doc.save(`PneumoVision_${c.id}_${new Date(c.date).toISOString().slice(0, 10)}.pdf`);
 }
