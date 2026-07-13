@@ -69,7 +69,7 @@ export default function AuthPage() {
       {/* Left Panel — Showcase */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden">
         {/* 3D Background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-y-0 w-full translate-x-[25%]">
           <AuthScene />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-void/40 via-transparent to-void/80" />
