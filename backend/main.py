@@ -52,11 +52,14 @@ app.add_middleware(
 # --------------------------------------------------------------------------
 model = None
 feature_extractor = None
-top_layers = None
+w1 = None
+b1 = None
+w2 = None
+b2 = None
 
 
 def load_model():
-    global model, feature_extractor, top_layers
+    global model, feature_extractor, w1, b1, w2, b2
     logger.info("Loading ResNet50 backbone (imagenet weights)...")
     base_resnet = ResNet50(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
     base_resnet.trainable = False
@@ -72,21 +75,28 @@ def load_model():
     logger.info("Loading fine-tuned weights from %s...", MODEL_PATH)
     built_model.load_weights(MODEL_PATH)
 
+    # Extract Dense layer weights for manual mathematical Grad-CAM
+    w1_val, b1_val = built_model.layers[2].get_weights()
+    w2_val, b2_val = built_model.layers[4].get_weights()
+    w1, b1, w2, b2 = w1_val, b1_val, w2_val, b2_val
+
     base_model_layer = built_model.layers[0]
     extractor = tf.keras.Model(
         inputs=base_model_layer.inputs,
+        # Output both the Grad-CAM layer AND the gap input layer
         outputs=[base_model_layer.get_layer(LAST_CONV_LAYER).output, base_model_layer.output],
     )
 
     logger.info("Model ready.")
-    return built_model, extractor, built_model.layers[1:]
+    # We no longer need to return top_layers since we do it mathematically
+    return built_model, extractor
 
 
 @app.on_event("startup")
 def on_startup():
-    global model, feature_extractor, top_layers
+    global model, feature_extractor
     try:
-        model, feature_extractor, top_layers = load_model()
+        model, feature_extractor = load_model()
     except Exception:
         logger.exception("Failed to load model at startup")
         # Leave model as None; /health and /predict will report the outage
@@ -97,24 +107,42 @@ def on_startup():
 # Inference helpers
 # --------------------------------------------------------------------------
 def get_heatmap(img_array: np.ndarray) -> np.ndarray:
-    with tf.GradientTape() as tape:
-        conv_outputs, x = feature_extractor(img_array)
-        tape.watch(conv_outputs)
-        for layer in top_layers:
-            x = layer(x)
-        class_channel = x[:, 0]
-
-    grads = tape.gradient(class_channel, conv_outputs)
-    if grads is None:
-        raise RuntimeError("Gradient computation failed during Grad-CAM.")
-
-    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
-    conv_outputs = conv_outputs[0]
-    heatmap = conv_outputs @ pooled_grads[..., tf.newaxis]
-    heatmap = tf.squeeze(heatmap)
-    max_val = tf.math.reduce_max(heatmap)
-    heatmap = tf.maximum(heatmap, 0) / (max_val + 1e-8)
-    return heatmap.numpy()
+    # Run forward pass through feature extractor ONLY (returns numpy arrays or tensors)
+    # We use .predict to avoid adding to the graph
+    outputs = feature_extractor.predict(img_array, verbose=0)
+    conv_outputs = outputs[0]  # shape (1, 7, 7, 2048)
+    gap_input = outputs[1]     # shape (1, 7, 7, 2048)
+    
+    # 1. Manual Global Average Pooling
+    gap = np.mean(gap_input, axis=(1, 2))  # shape (1, 2048)
+    
+    # 2. Manual Dense(512) + ReLU
+    h_pre = np.dot(gap, w1) + b1  # shape (1, 512)
+    
+    # 3. Calculate mathematically exact gradient of the pre-sigmoid logit
+    # w.r.t the h_pre activations: derivative of ReLU is (h_pre > 0)
+    v = w2.flatten() * (h_pre[0] > 0).astype(np.float32)  # shape (512,)
+    
+    # 4. Chain rule: Gradient of logit w.r.t the GAP layer output
+    alpha_g = np.dot(w1, v)  # shape (2048,)
+    
+    # 5. Chain rule: Gradient of logit w.r.t the final conv layer
+    # Since GAP averages over 7*7 = 49 spatial locations, the gradient distributes as 1/49
+    alpha = alpha_g / 49.0  # shape (2048,)
+    
+    # 6. Build the heatmap (sum of conv_outputs weighted by alpha)
+    # conv_outputs[0] is (7, 7, 2048), alpha is (2048,) -> dot product gives (7, 7)
+    heatmap = np.dot(conv_outputs[0], alpha)
+    
+    # ReLU on the heatmap (keep only positive features)
+    heatmap = np.maximum(heatmap, 0)
+    
+    # Normalize between 0 and 1
+    max_val = np.max(heatmap)
+    if max_val > 1e-8:
+        heatmap = heatmap / max_val
+        
+    return heatmap
 
 
 def build_heatmap_overlay(raw_bytes: bytes, heatmap: np.ndarray) -> str:
