@@ -12,6 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isInitialized: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -46,6 +47,7 @@ function saveUsers(users: ReturnType<typeof getUsers>) {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     try {
@@ -56,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch {
       localStorage.removeItem(SESSION_KEY);
+    } finally {
+      setIsInitialized(true);
     }
   }, []);
 
@@ -107,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isInitialized, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

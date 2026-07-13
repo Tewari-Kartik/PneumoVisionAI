@@ -1,7 +1,8 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
 import { AuthProvider } from "@/lib/auth-context";
+import AuthGuard from "@/components/layout/AuthGuard";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -40,11 +41,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="bg-void text-bright font-body antialiased">
         <AuthProvider>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <AuthGuard>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </AuthGuard>
         </AuthProvider>
       </body>
     </html>
   );
 }
-// Force Vercel rebuild
 
