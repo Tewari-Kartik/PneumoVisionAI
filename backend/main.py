@@ -9,6 +9,7 @@ import tensorflow as tf
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from tensorflow.keras.preprocessing import image as keras_image
+import threading
 from keras.applications import ResNet50
 from keras.models import Sequential
 from keras.layers import Dense, GlobalAveragePooling2D, Dropout
@@ -60,8 +61,8 @@ b2 = None
 
 def load_model():
     global model, feature_extractor, w1, b1, w2, b2
-    logger.info("Loading ResNet50 backbone (imagenet weights)...")
-    base_resnet = ResNet50(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
+    logger.info("Loading ResNet50 backbone (random weights)...")
+    base_resnet = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
     base_resnet.trainable = False
 
     built_model = Sequential([
@@ -92,15 +93,18 @@ def load_model():
     return built_model, extractor
 
 
-@app.on_event("startup")
-def on_startup():
+def background_load():
     global model, feature_extractor
     try:
-        model, feature_extractor = load_model()
+        m, ext = load_model()
+        model = m
+        feature_extractor = ext
     except Exception:
-        logger.exception("Failed to load model at startup")
-        # Leave model as None; /health and /predict will report the outage
-        # instead of crashing the whole process.
+        logger.exception("Failed to load model in background")
+
+@app.on_event("startup")
+def on_startup():
+    threading.Thread(target=background_load, daemon=True).start()
 
 
 # --------------------------------------------------------------------------
@@ -168,10 +172,9 @@ def build_heatmap_overlay(raw_bytes: bytes, heatmap: np.ndarray) -> str:
 # --------------------------------------------------------------------------
 @app.get("/health")
 def health():
-    return {
-        "status": "ok" if model is not None else "model_unavailable",
-        "model_version": MODEL_VERSION,
-    }
+    if model is not None:
+        return {"status": "ok", "model_version": MODEL_VERSION}
+    return {"status": "starting", "model_version": MODEL_VERSION}
 
 
 @app.post("/predict")

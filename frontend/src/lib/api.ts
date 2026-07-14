@@ -32,7 +32,7 @@ export interface HealthStatus {
 
 export async function checkHealth(): Promise<HealthStatus> {
   try {
-    const res = await api.get<HealthStatus>("/health");
+    const res = await api.get<HealthStatus>("/health", { timeout: 3000 });
     return res.data;
   } catch {
     return { status: "unreachable" };

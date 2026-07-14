@@ -26,7 +26,30 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
-    checkHealth().then((h) => setServerStatus(h.status === "ok" ? "online" : "offline"));
+    let isMounted = true;
+    let interval: NodeJS.Timeout;
+
+    const check = async () => {
+      const h = await checkHealth();
+      if (!isMounted) return;
+      
+      if (h.status === "ok") {
+        setServerStatus("online");
+        if (interval) clearInterval(interval);
+      } else if (h.status === "starting") {
+        setServerStatus("checking");
+      } else {
+        setServerStatus("offline");
+      }
+    };
+
+    check();
+    interval = setInterval(check, 3000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
